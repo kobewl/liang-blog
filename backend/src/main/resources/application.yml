@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: liang-blog
+  datasource:
+    url: jdbc:mysql://localhost:3306/liang_blog?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: false
+
+server:
+  port: 8080
+
+app:
+  security:
+    jwt:
+      issuer: liang-blog
+      secret: change-this-secret
+      access-token-ttl: PT2H
+
+logging:
+  level:
+    root: INFO
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0

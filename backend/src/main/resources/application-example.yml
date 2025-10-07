@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: liang-blog
+  datasource:
+    url: jdbc:mysql://localhost:3306/liang_blog?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    username: liang
+    password: change-me
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: false
+  ai:
+    openai:
+      api-key: "+set in environment+"
+      base-url: https://api.openai.com/v1
+      chat:
+        options:
+          model: gpt-3.5-turbo
+
+server:
+  port: 8080
+
+app:
+  security:
+    jwt:
+      issuer: liang-blog
+      secret: change-this-secret
+      access-token-ttl: PT2H
+
+logging:
+  level:
+    root: INFO
+    org.springframework.ai: INFO
