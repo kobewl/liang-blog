@@ -12,6 +12,8 @@ target/
 .settings
 .springBeans
 .sts4-cache
+.AGENTS.md
+.需求文档.md
 
 ### IntelliJ IDEA ###
 .idea

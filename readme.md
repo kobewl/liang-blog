@@ -42,6 +42,11 @@
    ```
    前端开发服务器默认运行在 <http://localhost:5173>，并通过代理访问后端 `http://localhost:8080`。
 
+### 配置管理
+- 全局默认配置在 `backend/src/main/resources/application.yml` 中维护，不含任何敏感值，相关字段通过环境变量占位符（如 `LIANG_BLOG_DB_USERNAME`）读取。
+- 项目已默认启用 `local` Profile（`spring.profiles.default=local`），只要存在 `backend/src/main/resources/application-local.yml`，启动后端时会自动读取其中的数据库账号和 AI Key。
+- `application-local.yml` 已加入 `.gitignore`，不会提交到仓库；如需切换到其他环境，可在启动命令中显式设置 `SPRING_PROFILES_ACTIVE=prod` 等覆盖默认值。
+
 ## 接口约定
 - 后端统一返回 `ApiResponse` 结构：`code`（0 表示成功）、`message`（友好提示）、`data`（业务数据）。
 - 需要登录的接口须在请求头携带 `Authorization: Bearer <token>`，该 token 由 `/api/auth/login` 或 `/api/auth/register` 返回。
@@ -106,6 +111,15 @@
 > - 密码使用 `BCrypt` 哈希存储；Token 由自定义 JWT 组件签发，无需引入 Spring Security。
 > - 所有用户数据默认 `status=ACTIVE`，逻辑删除通过 `is_deleted` 字段控制。
 
+### AI 对话
+| 场景 | 方法 | 路径 | 请求体 | 响应内容 |
+| ---- | ---- | ---- | ------ | -------- |
+| 获取 AI 流式回复 | POST | `/api/ai/chat` | `AiChatRequest`：`userMessage` | 返回 `text/event-stream`，每条事件的 `data:` 行即为模型输出文本片段 |
+
+> - 需要在请求头声明 `Accept: text/event-stream`，否则客户端可能看不到逐条推送。
+> - 调用示例（curl）：`curl -X POST http://127.0.0.1:8080/api/ai/chat -H "Content-Type: application/json" -H "Accept: text/event-stream" -d '{"userMessage":"你好"}'`。
+> - 如果要在浏览器中消费，可使用 `EventSource` 或 `fetch` + `ReadableStream` 监听每段文本。
+
 ### 数据库设计更新
 - `docs/sql/schema.sql` 重新整理所有表结构，补充 `account`、`avatar_url` 等用户信息字段，并对文章、评论、Todo 等表引入 `is_deleted` 逻辑删除位。
 - 全局启用 MyBatis Plus 逻辑删除（`is_deleted = 1`），配合实体类 `@TableLogic` 注解即可软删数据。
@@ -127,3 +141,4 @@
 - Markdown 编辑仍基于原生 `textarea`，可以评估引入 tiptap、v-md-editor 等组件以提升编辑体验与快捷键支持。
 - 分类目前自动按需创建，后续可增加标签管理接口（排序、重命名、颜色），并提供批量归档能力。
 - 受限网络下 Maven 依赖拉取可能失败，建议准备离线仓库或在 CI/CD 中预热缓存。
+- AI 对话接口改为标准的 SSE 流式输出后，现有统一 `ApiResponse` 包装被绕过；如需保持统一返回风格，可评估新增非流式回退接口或封装前端的 SSE 适配层。

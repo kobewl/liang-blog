@@ -1,10 +1,12 @@
 spring:
+  profiles:
+    default: local
   application:
     name: liang-blog
   datasource:
     url: jdbc:mysql://localhost:3306/liang_blog?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
-    username: root
-    password: 123456
+    username: ${LIANG_BLOG_DB_USERNAME:}
+    password: ${LIANG_BLOG_DB_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: none
@@ -13,9 +15,14 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     show-sql: false
+  ai:
+    deepseek:
+      api-key: ${LIANG_BLOG_DEEPSEEK_API_KEY}
 
 server:
   port: 8080
+  servlet:
+    context-path: /api
 
 app:
   security:
